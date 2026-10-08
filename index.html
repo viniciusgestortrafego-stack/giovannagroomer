@@ -413,6 +413,19 @@ footer a{color:var(--sand)}
 .wp-body .gets{margin-top:18px;padding-top:16px;border-top:1px solid var(--line);font-size:15.5px}
 .wp-body .gets b{color:var(--brick);font-weight:600}
 @media(prefers-reduced-motion:reduce){.who2.auto [aria-selected="true"] .bar{animation:none}.who-panels article.on{animation:none}.flow li,.flow .node{transition:none}}
+
+/* ============ CHIPS CLICÁVEIS (modelos / texturas / rostos) ============ */
+.chips{gap:10px}
+.chip{display:inline-flex;align-items:center;gap:8px;font:inherit;font-size:14.5px;cursor:pointer;color:var(--ink);border:1px solid var(--line);background:var(--card);padding:10px 20px 10px 16px;border-radius:999px;transition:background .3s,color .3s,border-color .3s,transform .3s,box-shadow .3s}
+.chip b{font-family:var(--ff-display);font-weight:400;font-size:19px;line-height:1;color:var(--brick);transition:color .3s}
+.chip:hover{border-color:rgba(154,75,51,.5);transform:translateY(-2px);box-shadow:0 12px 22px -16px rgba(37,34,31,.5)}
+.chip[aria-pressed="true"]{background:var(--char);color:#F1EADD;border-color:var(--char)}
+.chip[aria-pressed="true"] b{color:var(--sand)}
+.chip-note{margin-top:16px;min-height:1.7em;font-size:16px;color:var(--ink-soft)}
+.var .photo{position:relative}
+.tagpic{position:absolute;left:14px;top:14px;z-index:2;background:rgba(31,29,28,.84);color:#F1EADD;font-size:12px;letter-spacing:.13em;text-transform:uppercase;font-weight:600;padding:8px 14px;border-radius:999px;backdrop-filter:blur(6px);transition:opacity .22s,transform .22s}
+.tagpic.swap{opacity:0;transform:translateY(-6px)}
+@media(prefers-reduced-motion:reduce){.tagpic,.chip{transition:none}}
 </style>
 </head>
 <body>
@@ -539,15 +552,20 @@ footer a{color:var(--sand)}
     <div class="vars">
       <!-- Troque as fotos pelas dos cães do curso quando estiverem disponíveis -->
       <article class="var rv">
-        <div class="photo"><img src="web/shihtzu-rosto-redondo-frente.jpg" alt="Shih Tzu com rosto redondo, tosa ursinho" loading="lazy"></div>
+        <div class="photo"><span class="tagpic" data-m="Modelo 1 · Macho" data-t="Pelagem 1" data-r="Rosto redondinho">Modelo 1 · Macho</span><img src="web/shihtzu-rosto-redondo-frente.jpg" alt="Shih Tzu com rosto redondo, tosa ursinho" loading="lazy"></div>
         <div class="body"><small>Macho</small><h3>Rosto redondinho</h3><p>A tosa ursinho clássica: rosto redondo, proporção equilibrada e acabamento limpo.</p></div>
       </article>
       <article class="var rv">
-        <div class="photo"><img src="web/shihtzu-laco-preto-bandana-poa.jpg" alt="Shih Tzu com rosto no estilo Chanel" loading="lazy"></div>
+        <div class="photo"><span class="tagpic" data-m="Modelo 2 · Fêmea" data-t="Pelagem 2" data-r="Estilo Chanel">Modelo 2 · Fêmea</span><img src="web/shihtzu-laco-preto-bandana-poa.jpg" alt="Shih Tzu com rosto no estilo Chanel" loading="lazy"></div>
         <div class="body"><small>Fêmea</small><h3>Estilo Chanel</h3><p>Um rosto mais elegante, com linhas definidas e acabamento sofisticado.</p></div>
       </article>
     </div>
-    <div class="chips rv"><span class="chip">2 modelos</span><span class="chip">2 texturas de pelagem</span><span class="chip">2 variações de rosto</span></div>
+    <div class="chips rv" role="group" aria-label="Veja o que cada item significa">
+      <button type="button" class="chip" aria-pressed="true" data-k="m"><b>2</b> modelos</button>
+      <button type="button" class="chip" aria-pressed="false" data-k="t"><b>2</b> texturas de pelagem</button>
+      <button type="button" class="chip" aria-pressed="false" data-k="r"><b>2</b> variações de rosto</button>
+    </div>
+    <p class="chip-note" id="chipNote" aria-live="polite">Um macho e uma fêmea, acompanhados do início ao fim.</p>
   </div>
 </section>
 
@@ -778,7 +796,7 @@ footer a{color:var(--sand)}
       <p style="margin-top:10px">Além disso, você tem garantia incondicional de 7 dias, com reembolso total, sem burocracia.</p>
     </div>
     <hr>
-    <p>Giovanna Rivaroli · Guarulhos · <a href="https://www.instagram.com/grgroomers/" target="_blank" rel="noopener">@grgroomers</a></p>
+    <p>Giovanna Rivaroli · Guarulhos · <a href="https://www.instagram.com/groomer.gio.rivaroli/" target="_blank" rel="noopener">@groomer.gio.rivaroli</a></p>
     <p style="margin-top:8px">Copyright © 2026 Giovanna Groomer | Criado por <a href="https://www.instagram.com/genius.digital1" target="_blank" rel="noopener">Genius Assessoria Digital</a></p>
   </div>
 </footer>
@@ -933,6 +951,24 @@ if (who) {
       if (e.isIntersecting && !timer) start(); else if (!e.isIntersecting) { clearInterval(timer); timer = null; }
     }), { threshold: .4 }).observe(who);
   } else start();
+}
+
+/* Chips clicáveis: mudam a etiqueta das fotos e a explicação */
+const chipBtns = [...document.querySelectorAll(".chip")];
+if (chipBtns.length) {
+  const notes = {
+    m: "Um macho e uma fêmea, acompanhados do início ao fim.",
+    t: "Duas pelagens diferentes, para ver como o método se adapta sem perder o padrão.",
+    r: "Rosto redondinho no macho e estilo Chanel na fêmea."
+  };
+  const tags = [...document.querySelectorAll(".tagpic")];
+  const note = document.getElementById("chipNote");
+  chipBtns.forEach(btn => btn.addEventListener("click", () => {
+    const k = btn.dataset.k;
+    chipBtns.forEach(b => b.setAttribute("aria-pressed", b === btn));
+    note.textContent = notes[k];
+    tags.forEach(t => { t.classList.add("swap"); setTimeout(() => { t.textContent = t.dataset[k]; t.classList.remove("swap"); }, 200); });
+  }));
 }
 
 /* Aparecer ao rolar */
