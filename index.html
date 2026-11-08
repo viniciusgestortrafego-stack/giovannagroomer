@@ -117,7 +117,11 @@ h2{font-size:clamp(28px,4.4vw,44px);max-width:20ch}
 .vsl-ov .bigplay{width:84px;height:84px;border-radius:50%;background:rgba(154,75,51,.94);display:grid;place-items:center;margin:0 auto 12px}
 .vsl-ov .bigplay svg{width:34px;height:34px;margin-left:5px;color:#fff}
 .vsl-ov .lbl{font-size:13px;letter-spacing:.12em;text-transform:uppercase;font-weight:600}
+.vsl-bar{position:absolute;left:0;right:0;bottom:0;height:5px;z-index:4;background:rgba(255,255,255,.22);pointer-events:none}
+.vsl-bar i{display:block;height:100%;width:0;background:#9A4B33;box-shadow:0 0 8px rgba(154,75,51,.8)}
 @keyframes vslPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+/* Antes de assistir o mínimo do vídeo: só headline, vídeo e "pessoas assistindo" */
+body.locked #timerBox,body.locked .hero-cta,body.locked main>section:not(.hero),body.locked footer{display:none!important}
 .vsl-ph{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:#CBC2B1;padding:20px}
 .vsl-ph .play{width:76px;height:76px;border-radius:50%;border:1.5px solid var(--sand);display:grid;place-items:center;margin:0 auto 14px}
 .vsl-ph .play svg{width:26px;height:26px;margin-left:4px}
@@ -461,8 +465,16 @@ footer a{color:var(--sand)}
 @keyframes waRing{from{transform:scale(1);opacity:.7}to{transform:scale(1.55);opacity:0}}
 @media(prefers-reduced-motion:reduce){.wa-float::before{animation:none}}
 </style>
+<!-- Meta Pixel -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init','1634190808220269');
+fbq('track','PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1634190808220269&ev=PageView&noscript=1"/></noscript>
+<!-- End Meta Pixel -->
 </head>
-<body>
+<body class="locked">
 <!-- Google Tag Manager (noscript) -->
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PJZ6Q3DW"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
@@ -490,7 +502,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <h1>Aprenda a executar a <em>tosa bebê</em> com um passo a passo que <em>você consegue repetir</em> em todo atendimento.</h1>
     </div>
 
-    <!-- VSL em formato story (9:16) -->
+<!-- VSL em formato story (9:16) -->
     <div class="vsl" id="vsl" data-yt="Xky3YzTFTYM">
       <div class="vsl-frame"><div id="vslPlayer"></div></div>
       <div class="vsl-cover"></div>
@@ -508,6 +520,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="vsl-ov dim" id="vslEnded">
         <div><div class="bigplay"><svg><use href="#i-play"/></svg></div><span class="lbl">Assistir novamente</span></div>
       </div>
+      <div class="vsl-bar" aria-hidden="true"><i id="vslBar"></i></div>
     </div>
 
     <div class="pills">
@@ -601,11 +614,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="vars">
       <!-- Troque as fotos pelas dos cães do curso quando estiverem disponíveis -->
       <article class="var rv">
-        <div class="photo"><span class="tagpic" data-m="Modelo 1 · Macho" data-t="Pelagem 1" data-r="Rosto redondinho">Modelo 1 · Macho</span><img src="web/shihtzu-rosto-redondo-frente.jpg" alt="Shih Tzu com rosto redondo, tosa ursinho" loading="lazy"></div>
+        <div class="photo"><span class="tagpic" data-m="Modelo 1 · Macho" data-t="Pelagem 1" data-r="Rosto redondinho">Modelo 1 · Macho</span><img src="web/shihtzu-laco-roxo.jpg" alt="Shih Tzu com rosto redondo, tosa ursinho" loading="lazy" style="object-position:50% 55%"></div>
         <div class="body"><small>Macho</small><h3>Rosto redondinho</h3><p>A tosa ursinho clássica: rosto redondo, proporção equilibrada e acabamento limpo.</p></div>
       </article>
       <article class="var rv">
-        <div class="photo"><span class="tagpic" data-m="Modelo 2 · Fêmea" data-t="Pelagem 2" data-r="Estilo Chanel">Modelo 2 · Fêmea</span><img src="web/shihtzu-laco-preto-bandana-poa.jpg" alt="Shih Tzu com rosto no estilo Chanel" loading="lazy"></div>
+        <div class="photo"><span class="tagpic" data-m="Modelo 2 · Fêmea" data-t="Pelagem 2" data-r="Estilo Chanel">Modelo 2 · Fêmea</span><img src="web/maltes-bandana.jpg" alt="Shih Tzu com rosto no estilo Chanel" loading="lazy" style="object-position:50% 40%"></div>
         <div class="body"><small>Fêmea</small><h3>Estilo Chanel</h3><p>Um rosto mais elegante, com linhas definidas e acabamento sofisticado.</p></div>
       </article>
     </div>
@@ -633,11 +646,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>
       <div class="who-panels">
         <article role="tabpanel" id="wp0" aria-labelledby="wt0" class="on">
-          <div class="wp-img"><img src="web/shihtzu-rosto-redondo-frente.jpg" alt="Shih Tzu com rosto redondo" loading="lazy" style="object-position:50% 40%"></div>
+          <div class="wp-img"><img src="web/shihtzu-branco-laco-azul.jpg" alt="Shih Tzu com rosto redondo" loading="lazy" style="object-position:50% 45%"></div>
           <div class="wp-body"><p class="q">“Quero aprender do zero, sem me perder em termos técnicos.”</p><p class="d">O passo a passo começa na preparação da pelagem e segue em etapas curtas, para você acompanhar e executar com segurança.</p><p class="gets"><b>Você leva:</b> um caminho claro, da primeira etapa ao acabamento.</p></div>
         </article>
         <article role="tabpanel" id="wp1" aria-labelledby="wt1" class="">
-          <div class="wp-img"><img src="web/shihtzu-bege-pata-cilindrica-evento.jpg" alt="Shih Tzu com pata cilíndrica" loading="lazy" style="object-position:50% 50%"></div>
+          <div class="wp-img"><img src="web/shihtzu-laco-roxo.jpg" alt="Shih Tzu com pata cilíndrica" loading="lazy" style="object-position:50% 60%"></div>
           <div class="wp-body"><p class="q">“Já tosa, mas o resultado muda de um atendimento para o outro.”</p><p class="d">Você refina rosto e patas e aprende a repetir o mesmo acabamento, cão após cão.</p><p class="gets"><b>Você leva:</b> segurança técnica e consistência na entrega.</p></div>
         </article>
         <article role="tabpanel" id="wp2" aria-labelledby="wt2" class="">
@@ -841,7 +854,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="wrap">
     <div class="sec">
       <h4>SEGURANÇA</h4>
-      <p>Site 100% seguro com certificado SSL e pagamentos processados pela <span class="todo">[VOU INFORMAR]</span>, uma das plataformas mais confiáveis do Brasil.</p>
+      <p>Site 100% seguro com certificado SSL e pagamentos processados pela Hotmart, uma das plataformas mais confiáveis do Brasil.</p>
       <p style="margin-top:10px">Além disso, você tem garantia incondicional de 7 dias, com reembolso total, sem burocracia.</p>
     </div>
     <hr>
@@ -861,18 +874,31 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
    CONFIGURAÇÃO – edite só este bloco
    ========================================================== */
 const CONFIG = {
-  checkoutUrl: "#",        // link de compra (cole aqui quando tiver)
+  checkoutUrl: "https://pay.hotmart.com/B108393974V?checkoutMode=10",       // link de compra (usado só no último botão)
   whatsappUrl: "https://wa.me/5511947613681?text=Ol%C3%A1!%20Quero%20ajuda%20para%20comprar%20o%20curso.", // WhatsApp de suporte. Vazio = botão do WhatsApp sem ação
   alunos: 40,              // número atual de alunos
   meta: 100,               // meta do sorteio
   showViewers: true,       // barra "pessoas assistindo agora"
   viewersBase: 401,        // número base (varia um pouco sozinho)
   showTimer: true,         // timer da condição
-  timerMinutes: 15         // duração do timer (reinicia sozinho)
+  timerMinutes: 5,         // duração do timer (começa quando o conteúdo é liberado)
+  revealAt: 0.5            // % do vídeo assistido para liberar o restante da página (0.5 = 50%)
 };
 
 /* Links de compra */
-document.querySelectorAll(".js-cta").forEach(a => a.setAttribute("href", CONFIG.checkoutUrl));
+/* Botões em cadeia: cada botão leva ao próximo; só o botão da caixa de preço vai ao checkout */
+const ctas = [...document.querySelectorAll(".js-cta")];
+const buyBtn = document.querySelector(".price-box .js-cta");
+const buyIdx = ctas.indexOf(buyBtn);
+ctas.forEach((a, i) => {
+  if (a === buyBtn) { a.setAttribute("href", CONFIG.checkoutUrl); return; }
+  const next = i < buyIdx ? ctas[i + 1] : buyBtn;
+  a.setAttribute("href", "#");
+  a.addEventListener("click", e => {
+    e.preventDefault();
+    next.scrollIntoView({ behavior: "smooth", block: "center" });
+  });
+});
 
 /* WhatsApp de suporte */
 const wa = document.getElementById("waLink");
@@ -892,6 +918,25 @@ const trackWhatsApp = local => {
 };
 waFloat.addEventListener("click", () => { if (CONFIG.whatsappUrl) trackWhatsApp("botao_flutuante"); });
 document.getElementById("waLink").addEventListener("click", () => trackWhatsApp("oferta"));
+
+/* Evento de rolagem (Meta Pixel + GTM): dispara 1x por marco de 25/50/75/100% */
+(() => {
+  const marcos = [25, 50, 75, 100], enviados = new Set();
+  const check = () => {
+    const h = document.documentElement.scrollHeight - window.innerHeight;
+    if (h <= 0) return;
+    const p = Math.round(window.scrollY / h * 100);
+    marcos.forEach(m => {
+      if (p >= m && !enviados.has(m)) {
+        enviados.add(m);
+        if (window.fbq) fbq("trackCustom", "Scroll", { percent: m });
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({ event: "scroll_depth", scroll_percent: m });
+      }
+    });
+  };
+  window.addEventListener("scroll", check, { passive: true });
+})();
 
 /* Alunos */
 const pct = Math.min(100, Math.round(CONFIG.alunos / CONFIG.meta * 100));
@@ -914,7 +959,8 @@ else {
 const timerBox = document.getElementById("timerBox");
 const timerLine = document.getElementById("timerLine");
 if (!CONFIG.showTimer) { timerBox.hidden = true; timerLine.hidden = true; }
-else {
+const startTimer = () => {
+  if (!CONFIG.showTimer) return;
   const dur = CONFIG.timerMinutes * 60 * 1000;
   let end = null;
   try { end = parseInt(localStorage.getItem("gr_timer_end"), 10) || null; } catch (e) {}
@@ -927,7 +973,29 @@ else {
     nodes.forEach(n => n.textContent = m + ":" + ss);
   };
   tick(); setInterval(tick, 1000);
-}
+};
+
+/* Trava da página: libera tudo quando o visitante assistir CONFIG.revealAt do vídeo (com som) */
+window.VSL_REVEAL_AT = CONFIG.revealAt;
+(() => {
+  let done = false, ready = false;
+  const unlock = () => {
+    if (done) return; done = true;
+    document.body.classList.remove("locked");
+    try { localStorage.setItem("gr_unlocked", "1"); } catch (e) {}
+    startTimer();
+    if (window.fbq) fbq("trackCustom", "VideoLiberado", { percent: CONFIG.revealAt * 100 });
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: "video_reveal", video_percent: CONFIG.revealAt * 100 });
+  };
+  let seen = false;
+  try { seen = localStorage.getItem("gr_unlocked") === "1"; } catch (e) {}
+  if (seen) unlock();
+  window.addEventListener("vsl-reveal", unlock);
+  window.addEventListener("vsl-ready", () => { ready = true; });
+  /* segurança: se o player do YouTube não carregar em 20s, libera a página para não ficar presa */
+  setTimeout(() => { if (!ready) unlock(); }, 20000);
+})();
 
 /* Contador e barra da meta (animam ao aparecer) */
 const goal = document.getElementById("goal");
@@ -1070,13 +1138,14 @@ if (spin && "IntersectionObserver" in window) {
    Clique no vídeo pausa/continua. Sem controles, sem barra de tempo, sem link pro YouTube. */
 (function(){
   var box=document.getElementById('vsl'); if(!box) return;
-  var id=box.getAttribute('data-yt'), player, ready=false, unmuted=false;
+  var id=box.getAttribute('data-yt'), player, ready=false, unmuted=false, watched=0, tick=null;
   var ovSound=document.getElementById('vslSound'), ovPause=document.getElementById('vslPaused'), ovEnd=document.getElementById('vslEnded');
   var hit=box.querySelector('.vsl-click');
+  var barEl=document.getElementById('vslBar');
   function show(el){[ovSound,ovPause,ovEnd].forEach(function(o){o.classList.toggle('show',o===el)})}
   function startWithSound(){
     if(!ready) return;
-    unmuted=true; player.unMute(); player.setVolume(100); player.seekTo(0,true); player.playVideo(); show(null);
+    unmuted=true; watched=0; player.unMute(); player.setVolume(100); player.seekTo(0,true); player.playVideo(); show(null);
   }
   ovSound.addEventListener('click',startWithSound);
   ovPause.addEventListener('click',function(){ if(ready){player.playVideo(); show(null);} });
@@ -1091,9 +1160,11 @@ if (spin && "IntersectionObserver" in window) {
       host:'https://www.youtube-nocookie.com', videoId:id,
       playerVars:{autoplay:1,mute:1,controls:0,disablekb:1,fs:0,rel:0,modestbranding:1,iv_load_policy:3,playsinline:1,cc_load_policy:0,showinfo:0,origin:location.origin},
       events:{
-        onReady:function(e){ ready=true; e.target.mute(); e.target.playVideo(); },
+        onReady:function(e){ ready=true; setInterval(function(){ var d=player.getDuration(); if(d) barEl.style.width=Math.min(100,player.getCurrentTime()/d*100)+'%'; },250); window.dispatchEvent(new Event('vsl-ready')); e.target.mute(); e.target.playVideo(); },
         onStateChange:function(e){
+          clearInterval(tick);
           if(e.data===1) box.classList.add('is-on');
+          if(e.data===1 && unmuted) tick=setInterval(function(){ watched+=.5; var d=player.getDuration(); if(d && watched/d>=window.VSL_REVEAL_AT){ clearInterval(tick); window.dispatchEvent(new Event('vsl-reveal')); } },500);
           if(e.data===0){ if(!unmuted){ player.seekTo(0,true); player.playVideo(); } else show(ovEnd); }
         }
       }
