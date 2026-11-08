@@ -117,7 +117,7 @@ h2{font-size:clamp(28px,4.4vw,44px);max-width:20ch}
 .vsl-ov .bigplay{width:84px;height:84px;border-radius:50%;background:rgba(154,75,51,.94);display:grid;place-items:center;margin:0 auto 12px}
 .vsl-ov .bigplay svg{width:34px;height:34px;margin-left:5px;color:#fff}
 .vsl-ov .lbl{font-size:13px;letter-spacing:.12em;text-transform:uppercase;font-weight:600}
-.vsl-bar{position:absolute;left:0;right:0;bottom:0;height:5px;z-index:4;background:rgba(255,255,255,.22);pointer-events:none}
+.vsl-bar{position:absolute;left:0;right:0;bottom:0;height:9px;z-index:4;background:rgba(255,255,255,.22);pointer-events:none}
 .vsl-bar i{display:block;height:100%;width:0;background:#9A4B33;box-shadow:0 0 8px rgba(154,75,51,.8)}
 @keyframes vslPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
 /* Antes de assistir o mínimo do vídeo: só headline, vídeo e "pessoas assistindo" */
@@ -1142,6 +1142,9 @@ if (spin && "IntersectionObserver" in window) {
   var ovSound=document.getElementById('vslSound'), ovPause=document.getElementById('vslPaused'), ovEnd=document.getElementById('vslEnded');
   var hit=box.querySelector('.vsl-click');
   var barEl=document.getElementById('vslBar');
+  /* Barra "rápida no começo": nos primeiros 20% do vídeo ela já chega a 55%,
+     depois desacelera e segue devagar e constante até o fim (sem salto na transição) */
+  function fakeProg(t){ t=Math.max(0,Math.min(1,t)); return t<0.2 ? 4.9375*t - 10.9375*t*t : 0.55 + 0.45*(t-0.2)/0.8; }
   function show(el){[ovSound,ovPause,ovEnd].forEach(function(o){o.classList.toggle('show',o===el)})}
   function startWithSound(){
     if(!ready) return;
@@ -1160,7 +1163,7 @@ if (spin && "IntersectionObserver" in window) {
       host:'https://www.youtube-nocookie.com', videoId:id,
       playerVars:{autoplay:1,mute:1,controls:0,disablekb:1,fs:0,rel:0,modestbranding:1,iv_load_policy:3,playsinline:1,cc_load_policy:0,showinfo:0,origin:location.origin},
       events:{
-        onReady:function(e){ ready=true; setInterval(function(){ var d=player.getDuration(); if(d) barEl.style.width=Math.min(100,player.getCurrentTime()/d*100)+'%'; },250); window.dispatchEvent(new Event('vsl-ready')); e.target.mute(); e.target.playVideo(); },
+        onReady:function(e){ ready=true; setInterval(function(){ var d=player.getDuration(); if(d) barEl.style.width=Math.min(100,fakeProg(player.getCurrentTime()/d)*100)+'%'; },250); window.dispatchEvent(new Event('vsl-ready')); e.target.mute(); e.target.playVideo(); },
         onStateChange:function(e){
           clearInterval(tick);
           if(e.data===1) box.classList.add('is-on');
