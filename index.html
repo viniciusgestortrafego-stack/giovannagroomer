@@ -101,7 +101,9 @@ h2{font-size:clamp(28px,4.4vw,44px);max-width:20ch}
   .pills{grid-area:pills;width:398px}
   .hero-cta{grid-area:cta;width:398px}
 }
-.vsl iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.vsl iframe,.vsl video{position:absolute;inset:0;width:100%;height:100%;border:0;object-fit:cover}
+/* Antes de assistir o mínimo do vídeo: só headline, vídeo e "pessoas assistindo" */
+body.locked #timerBox,body.locked .hero-cta,body.locked main>section:not(.hero),body.locked footer{display:none!important}
 .vsl-ph{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:#CBC2B1;padding:20px}
 .vsl-ph .play{width:76px;height:76px;border-radius:50%;border:1.5px solid var(--sand);display:grid;place-items:center;margin:0 auto 14px}
 .vsl-ph .play svg{width:26px;height:26px;margin-left:4px}
@@ -454,7 +456,7 @@ fbq('track','PageView');
 <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1634190808220269&ev=PageView&noscript=1"/></noscript>
 <!-- End Meta Pixel -->
 </head>
-<body>
+<body class="locked">
 <!-- Google Tag Manager (noscript) -->
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PJZ6Q3DW"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
@@ -822,7 +824,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="wrap">
     <div class="sec">
       <h4>SEGURANÇA</h4>
-      <p>Site 100% seguro com certificado SSL e pagamentos processados pela <span class="todo">[VOU INFORMAR]</span>, uma das plataformas mais confiáveis do Brasil.</p>
+      <p>Site 100% seguro com certificado SSL e pagamentos processados pela Hotmart, uma das plataformas mais confiáveis do Brasil.</p>
       <p style="margin-top:10px">Além disso, você tem garantia incondicional de 7 dias, com reembolso total, sem burocracia.</p>
     </div>
     <hr>
@@ -842,18 +844,32 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
    CONFIGURAÇÃO – edite só este bloco
    ========================================================== */
 const CONFIG = {
-  checkoutUrl: "https://pay.hotmart.com/B108393974V?checkoutMode=10",       // link de compra (cole aqui quando tiver)
+  checkoutUrl: "https://pay.hotmart.com/B108393974V?checkoutMode=10",       // link de compra (usado só no último botão)
   whatsappUrl: "https://wa.me/5511947613681?text=Ol%C3%A1!%20Quero%20ajuda%20para%20comprar%20o%20curso.", // WhatsApp de suporte. Vazio = botão do WhatsApp sem ação
   alunos: 40,              // número atual de alunos
   meta: 100,               // meta do sorteio
   showViewers: true,       // barra "pessoas assistindo agora"
   viewersBase: 401,        // número base (varia um pouco sozinho)
   showTimer: true,         // timer da condição
-  timerMinutes: 15         // duração do timer (reinicia sozinho)
+  timerMinutes: 5,         // duração do timer (começa quando o conteúdo é liberado)
+  videoUrl: "",            // link .mp4 do vídeo de apresentação. Vazio = página liberada sem trava
+  revealAt: 0.5            // % do vídeo assistido para liberar o restante da página (0.5 = 50%)
 };
 
 /* Links de compra */
-document.querySelectorAll(".js-cta").forEach(a => a.setAttribute("href", CONFIG.checkoutUrl));
+/* Botões em cadeia: cada botão leva ao próximo; só o botão da caixa de preço vai ao checkout */
+const ctas = [...document.querySelectorAll(".js-cta")];
+const buyBtn = document.querySelector(".price-box .js-cta");
+const buyIdx = ctas.indexOf(buyBtn);
+ctas.forEach((a, i) => {
+  if (a === buyBtn) { a.setAttribute("href", CONFIG.checkoutUrl); return; }
+  const next = i < buyIdx ? ctas[i + 1] : buyBtn;
+  a.setAttribute("href", "#");
+  a.addEventListener("click", e => {
+    e.preventDefault();
+    next.scrollIntoView({ behavior: "smooth", block: "center" });
+  });
+});
 
 /* WhatsApp de suporte */
 const wa = document.getElementById("waLink");
@@ -914,7 +930,8 @@ else {
 const timerBox = document.getElementById("timerBox");
 const timerLine = document.getElementById("timerLine");
 if (!CONFIG.showTimer) { timerBox.hidden = true; timerLine.hidden = true; }
-else {
+const startTimer = () => {
+  if (!CONFIG.showTimer) return;
   const dur = CONFIG.timerMinutes * 60 * 1000;
   let end = null;
   try { end = parseInt(localStorage.getItem("gr_timer_end"), 10) || null; } catch (e) {}
@@ -927,7 +944,37 @@ else {
     nodes.forEach(n => n.textContent = m + ":" + ss);
   };
   tick(); setInterval(tick, 1000);
-}
+};
+
+/* Trava da página: libera tudo quando o visitante assistir CONFIG.revealAt do vídeo */
+(() => {
+  const vsl = document.getElementById("vsl");
+  let done = false;
+  const unlock = () => {
+    if (done) return; done = true;
+    document.body.classList.remove("locked");
+    try { localStorage.setItem("gr_unlocked", "1"); } catch (e) {}
+    startTimer();
+    if (window.fbq) fbq("trackCustom", "VideoLiberado", { percent: CONFIG.revealAt * 100 });
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: "video_reveal", video_percent: CONFIG.revealAt * 100 });
+  };
+  let seen = false;
+  try { seen = localStorage.getItem("gr_unlocked") === "1"; } catch (e) {}
+  if (!CONFIG.videoUrl || seen) { unlock(); if (!CONFIG.videoUrl) return; }
+  if (!CONFIG.videoUrl) return;
+  const v = document.createElement("video");
+  v.src = CONFIG.videoUrl; v.controls = true; v.playsInline = true; v.preload = "metadata";
+  vsl.innerHTML = ""; vsl.appendChild(v);
+  /* conta só o tempo realmente assistido (pular para o fim não libera) */
+  let watched = 0, last = 0;
+  v.addEventListener("timeupdate", () => {
+    const d = v.currentTime - last; last = v.currentTime;
+    if (d > 0 && d < 1.5) watched += d;
+    if (v.duration && watched / v.duration >= CONFIG.revealAt) unlock();
+  });
+  v.addEventListener("seeking", () => { last = v.currentTime; });
+})();
 
 /* Contador e barra da meta (animam ao aparecer) */
 const goal = document.getElementById("goal");
