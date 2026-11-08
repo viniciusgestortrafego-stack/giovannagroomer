@@ -445,6 +445,14 @@ footer a{color:var(--sand)}
 @keyframes waRing{from{transform:scale(1);opacity:.7}to{transform:scale(1.55);opacity:0}}
 @media(prefers-reduced-motion:reduce){.wa-float::before{animation:none}}
 </style>
+<!-- Meta Pixel -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init','1634190808220269');
+fbq('track','PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1634190808220269&ev=PageView&noscript=1"/></noscript>
+<!-- End Meta Pixel -->
 </head>
 <body>
 <!-- Google Tag Manager (noscript) -->
@@ -865,6 +873,25 @@ const trackWhatsApp = local => {
 };
 waFloat.addEventListener("click", () => { if (CONFIG.whatsappUrl) trackWhatsApp("botao_flutuante"); });
 document.getElementById("waLink").addEventListener("click", () => trackWhatsApp("oferta"));
+
+/* Evento de rolagem (Meta Pixel + GTM): dispara 1x por marco de 25/50/75/100% */
+(() => {
+  const marcos = [25, 50, 75, 100], enviados = new Set();
+  const check = () => {
+    const h = document.documentElement.scrollHeight - window.innerHeight;
+    if (h <= 0) return;
+    const p = Math.round(window.scrollY / h * 100);
+    marcos.forEach(m => {
+      if (p >= m && !enviados.has(m)) {
+        enviados.add(m);
+        if (window.fbq) fbq("trackCustom", "Scroll", { percent: m });
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({ event: "scroll_depth", scroll_percent: m });
+      }
+    });
+  };
+  window.addEventListener("scroll", check, { passive: true });
+})();
 
 /* Alunos */
 const pct = Math.min(100, Math.round(CONFIG.alunos / CONFIG.meta * 100));
