@@ -852,7 +852,8 @@ const CONFIG = {
   viewersBase: 401,        // número base (varia um pouco sozinho)
   showTimer: true,         // timer da condição
   timerMinutes: 5,         // duração do timer (começa quando o conteúdo é liberado)
-  videoUrl: "",            // link .mp4 do vídeo de apresentação. Vazio = página liberada sem trava
+  youtubeUrl: "",          // link do vídeo no YouTube (watch, youtu.be ou embed). Vazio = página liberada sem trava
+  videoUrl: "",            // alternativa: link .mp4 hospedado direto (use só um dos dois)
   revealAt: 0.5            // % do vídeo assistido para liberar o restante da página (0.5 = 50%)
 };
 
@@ -961,7 +962,28 @@ const startTimer = () => {
   };
   let seen = false;
   try { seen = localStorage.getItem("gr_unlocked") === "1"; } catch (e) {}
-  if (!CONFIG.videoUrl || seen) { unlock(); if (!CONFIG.videoUrl) return; }
+  const ytId = ((CONFIG.youtubeUrl || "").match(/(?:v=|youtu\.be\/|embed\/|shorts\/|live\/)([\w-]{11})/) || [])[1];
+  if ((!CONFIG.videoUrl && !ytId) || seen) unlock();
+  if (ytId) {
+    const box = document.createElement("div"); box.id = "ytPlayer"; vsl.innerHTML = ""; vsl.appendChild(box);
+    const tag = document.createElement("script"); tag.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(tag);
+    window.onYouTubeIframeAPIReady = () => {
+      let watched = 0, timer = null;
+      const player = new YT.Player("ytPlayer", {
+        videoId: ytId, width: "100%", height: "100%",
+        playerVars: { playsinline: 1, rel: 0, modestbranding: 1 },
+        events: { onStateChange: e => {
+          clearInterval(timer);
+          if (e.data === YT.PlayerState.PLAYING) timer = setInterval(() => {
+            watched += 0.5; /* conta só enquanto está tocando */
+            const d = player.getDuration();
+            if (d && watched / d >= CONFIG.revealAt) { unlock(); clearInterval(timer); }
+          }, 500);
+        } }
+      });
+    };
+    return;
+  }
   if (!CONFIG.videoUrl) return;
   const v = document.createElement("video");
   v.src = CONFIG.videoUrl; v.controls = true; v.playsInline = true; v.preload = "metadata";
