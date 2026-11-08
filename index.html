@@ -101,21 +101,24 @@ h2{font-size:clamp(28px,4.4vw,44px);max-width:20ch}
   .pills{grid-area:pills;width:398px}
   .hero-cta{grid-area:cta;width:398px}
 }
-.vsl iframe,.vsl video{position:absolute;inset:0;width:100%;height:100%;border:0;object-fit:cover}
+/* Player da VSL (YouTube sem cara de YouTube: sem controles, sem barra de tempo, sem título/logo) */
+.vsl-frame{position:absolute;left:0;right:0;top:-70px;height:calc(100% + 140px);pointer-events:none}
+.vsl-frame iframe{width:100%;height:100%;border:0;display:block}
+.vsl-cover{position:absolute;inset:0;background:var(--char-2);transition:opacity .5s;z-index:1}
+.vsl.is-on .vsl-cover{opacity:0;pointer-events:none}
+.vsl-click{position:absolute;inset:0;z-index:2;cursor:pointer;background:transparent;border:0;padding:0;-webkit-tap-highlight-color:transparent}
+.vsl-ov{position:absolute;inset:0;z-index:3;display:none;place-items:center;text-align:center;color:#fff;cursor:pointer;padding:24px}
+.vsl-ov.show{display:grid}
+.vsl-ov.dim{background:rgba(18,16,15,.55)}
+.vsl-ov .box{background:rgba(154,75,51,.94);border-radius:16px;padding:22px 26px;box-shadow:0 18px 40px -16px rgba(0,0,0,.7);max-width:250px}
+.vsl-ov .box p{margin:0;font-size:15px;line-height:1.35;font-weight:600}
+.vsl-ov .box small{display:block;font-size:12px;opacity:.85;margin-bottom:8px;letter-spacing:.06em;text-transform:uppercase}
+.vsl-ov .ico{width:62px;height:62px;margin:6px auto 10px;display:block;animation:vslPulse 1.4s ease-in-out infinite}
+.vsl-ov .bigplay{width:84px;height:84px;border-radius:50%;background:rgba(154,75,51,.94);display:grid;place-items:center;margin:0 auto 12px}
+.vsl-ov .bigplay svg{width:34px;height:34px;margin-left:5px;color:#fff}
+.vsl-ov .lbl{font-size:13px;letter-spacing:.12em;text-transform:uppercase;font-weight:600}
+@keyframes vslPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
 /* Antes de assistir o mínimo do vídeo: só headline, vídeo e "pessoas assistindo" */
-/* Player do YouTube sem nenhum elemento clicável do YouTube (título, logo, compartilhar, assistir depois) */
-.vsl{overflow:hidden}
-.vsl .yt-shield{position:absolute;inset:0;z-index:3;cursor:pointer;background:#000 center/cover no-repeat;display:grid;place-items:center;-webkit-tap-highlight-color:transparent}
-.vsl .yt-shield.playing{background:transparent}
-.vsl .yt-shield .yt-btn{width:76px;height:76px;border-radius:50%;background:rgba(0,0,0,.55);border:1.5px solid #fff;display:grid;place-items:center;color:#fff;transition:transform .2s}
-.vsl .yt-shield:hover .yt-btn{transform:scale(1.07)}
-.vsl .yt-shield .yt-btn svg{width:34px;height:34px;margin-left:4px}
-.vsl .yt-shield .yt-btn{display:none}
-.vsl .yt-shield.sound-on:not(.playing) .yt-btn{display:grid}
-.vsl .yt-shield .yt-sound{display:flex;align-items:center;gap:10px;padding:14px 22px;border-radius:999px;background:rgba(0,0,0,.72);border:1.5px solid #fff;color:#fff;font:600 16px/1.2 var(--sans,inherit);text-align:center;animation:ytPulse 1.6s ease-in-out infinite}
-.vsl .yt-shield .yt-sound svg{width:26px;height:26px;flex:none}
-.vsl .yt-shield.sound-on .yt-sound{display:none}
-@keyframes ytPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
 body.locked #timerBox,body.locked .hero-cta,body.locked main>section:not(.hero),body.locked footer{display:none!important}
 .vsl-ph{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:#CBC2B1;padding:20px}
 .vsl-ph .play{width:76px;height:76px;border-radius:50%;border:1.5px solid var(--sand);display:grid;place-items:center;margin:0 auto 14px}
@@ -497,12 +500,23 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <h1>Aprenda a executar a <em>tosa bebê</em> com um passo a passo que <em>você consegue repetir</em> em todo atendimento.</h1>
     </div>
 
-    <!-- VSL em formato story (9:16), igual à página de referência.
-         Para colocar o vídeo: troque o bloco .vsl-ph por
-         <iframe src="URL-DO-SEU-VÍDEO" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe> -->
-    <div class="vsl" id="vsl">
-      <div class="vsl-ph">
-        <div><div class="play"><svg><use href="#i-play"/></svg></div><small>Vídeo de apresentação</small></div>
+<!-- VSL em formato story (9:16) -->
+    <div class="vsl" id="vsl" data-yt="Xky3YzTFTYM">
+      <div class="vsl-frame"><div id="vslPlayer"></div></div>
+      <div class="vsl-cover"></div>
+      <button class="vsl-click" type="button" aria-label="Pausar ou continuar o vídeo"></button>
+      <div class="vsl-ov dim show" id="vslSound">
+        <div class="box">
+          <small>Seu vídeo já começou</small>
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z" fill="#fff"/><path d="m23 9-6 6M17 9l6 6"/></svg>
+          <p>Clique para ativar o som</p>
+        </div>
+      </div>
+      <div class="vsl-ov dim" id="vslPaused">
+        <div><div class="bigplay"><svg><use href="#i-play"/></svg></div><span class="lbl">Continuar assistindo</span></div>
+      </div>
+      <div class="vsl-ov dim" id="vslEnded">
+        <div><div class="bigplay"><svg><use href="#i-play"/></svg></div><span class="lbl">Assistir novamente</span></div>
       </div>
     </div>
 
@@ -865,8 +879,6 @@ const CONFIG = {
   viewersBase: 401,        // número base (varia um pouco sozinho)
   showTimer: true,         // timer da condição
   timerMinutes: 5,         // duração do timer (começa quando o conteúdo é liberado)
-  youtubeUrl: "https://youtu.be/hpbBdJ25uac",          // link do vídeo no YouTube (watch, youtu.be ou embed). Vazio = página liberada sem trava
-  videoUrl: "",            // alternativa: link .mp4 hospedado direto (use só um dos dois)
   revealAt: 0.5            // % do vídeo assistido para liberar o restante da página (0.5 = 50%)
 };
 
@@ -960,10 +972,10 @@ const startTimer = () => {
   tick(); setInterval(tick, 1000);
 };
 
-/* Trava da página: libera tudo quando o visitante assistir CONFIG.revealAt do vídeo */
+/* Trava da página: libera tudo quando o visitante assistir CONFIG.revealAt do vídeo (com som) */
+window.VSL_REVEAL_AT = CONFIG.revealAt;
 (() => {
-  const vsl = document.getElementById("vsl");
-  let done = false;
+  let done = false, ready = false;
   const unlock = () => {
     if (done) return; done = true;
     document.body.classList.remove("locked");
@@ -975,60 +987,11 @@ const startTimer = () => {
   };
   let seen = false;
   try { seen = localStorage.getItem("gr_unlocked") === "1"; } catch (e) {}
-  const ytId = ((CONFIG.youtubeUrl || "").match(/(?:v=|youtu\.be\/|embed\/|shorts\/|live\/)([\w-]{11})/) || [])[1];
-  if ((!CONFIG.videoUrl && !ytId) || seen) unlock();
-  if (ytId) {
-    const box = document.createElement("div"); box.id = "ytPlayer"; vsl.innerHTML = ""; vsl.appendChild(box);
-    /* Camada por cima do player: bloqueia qualquer clique no YouTube; o clique só dá play/pause */
-    const shield = document.createElement("div");
-    shield.className = "yt-shield";
-    shield.style.backgroundImage = "url(https://i.ytimg.com/vi/" + ytId + "/maxresdefault.jpg)";
-    shield.innerHTML = '<div class="yt-btn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l13-7.5z"/></svg></div>'
-      + '<div class="yt-sound"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 010 7M18.5 5.5a9 9 0 010 13"/></svg><span>Clique para ativar o som</span></div>';
-    vsl.appendChild(shield);
-    const tag = document.createElement("script"); tag.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(tag);
-    window.onYouTubeIframeAPIReady = () => {
-      let watched = 0, timer = null, soundOn = false;
-      const player = new YT.Player("ytPlayer", {
-        videoId: ytId, width: "100%", height: "100%", host: "https://www.youtube-nocookie.com",
-        playerVars: { playsinline: 1, rel: 0, modestbranding: 1, controls: 0, disablekb: 1, fs: 0, iv_load_policy: 3, cc_load_policy: 0, autoplay: 1, mute: 1, loop: 0 },
-        events: { onReady: e => { e.target.mute(); e.target.playVideo(); }, onStateChange: e => {
-          clearInterval(timer);
-          /* tocando: camada transparente; pausado/terminado: camada preta com botão (esconde título e sugestões do YouTube) */
-          shield.classList.toggle("playing", e.data === YT.PlayerState.PLAYING || e.data === YT.PlayerState.BUFFERING);
-          if (e.data !== YT.PlayerState.PLAYING && e.data !== YT.PlayerState.BUFFERING && e.data !== YT.PlayerState.UNSTARTED) shield.style.backgroundImage = "none";
-          if (e.data === YT.PlayerState.PLAYING && soundOn) timer = setInterval(() => {
-            watched += 0.5; /* conta só enquanto está tocando */
-            const d = player.getDuration();
-            if (d && watched / d >= CONFIG.revealAt) { unlock(); clearInterval(timer); }
-          }, 500);
-        } }
-      });
-      shield.addEventListener("click", () => {
-        if (!soundOn) {
-          /* primeiro clique: reinicia o vídeo do começo, já com som */
-          soundOn = true; watched = 0;
-          shield.classList.add("sound-on");
-          player.seekTo(0, true); player.unMute(); player.setVolume(100); player.playVideo();
-          return;
-        }
-        if (player.getPlayerState() === YT.PlayerState.PLAYING) player.pauseVideo(); else player.playVideo();
-      });
-    };
-    return;
-  }
-  if (!CONFIG.videoUrl) return;
-  const v = document.createElement("video");
-  v.src = CONFIG.videoUrl; v.controls = true; v.playsInline = true; v.preload = "metadata";
-  vsl.innerHTML = ""; vsl.appendChild(v);
-  /* conta só o tempo realmente assistido (pular para o fim não libera) */
-  let watched = 0, last = 0;
-  v.addEventListener("timeupdate", () => {
-    const d = v.currentTime - last; last = v.currentTime;
-    if (d > 0 && d < 1.5) watched += d;
-    if (v.duration && watched / v.duration >= CONFIG.revealAt) unlock();
-  });
-  v.addEventListener("seeking", () => { last = v.currentTime; });
+  if (seen) unlock();
+  window.addEventListener("vsl-reveal", unlock);
+  window.addEventListener("vsl-ready", () => { ready = true; });
+  /* segurança: se o player do YouTube não carregar em 20s, libera a página para não ficar presa */
+  setTimeout(() => { if (!ready) unlock(); }, 20000);
 })();
 
 /* Contador e barra da meta (animam ao aparecer) */
@@ -1165,6 +1128,46 @@ if (spin && "IntersectionObserver" in window) {
   new IntersectionObserver(es => es.forEach(e => e.isIntersecting ? spin.play().catch(() => {}) : spin.pause()), { threshold: .4 }).observe(spin);
 }
 
+</script>
+<script>
+/* VSL: player do YouTube com cara de player próprio.
+   Começa mudo em autoplay; ao clicar em "ativar o som" volta pro início com som.
+   Clique no vídeo pausa/continua. Sem controles, sem barra de tempo, sem link pro YouTube. */
+(function(){
+  var box=document.getElementById('vsl'); if(!box) return;
+  var id=box.getAttribute('data-yt'), player, ready=false, unmuted=false, watched=0, tick=null;
+  var ovSound=document.getElementById('vslSound'), ovPause=document.getElementById('vslPaused'), ovEnd=document.getElementById('vslEnded');
+  var hit=box.querySelector('.vsl-click');
+  function show(el){[ovSound,ovPause,ovEnd].forEach(function(o){o.classList.toggle('show',o===el)})}
+  function startWithSound(){
+    if(!ready) return;
+    unmuted=true; watched=0; player.unMute(); player.setVolume(100); player.seekTo(0,true); player.playVideo(); show(null);
+  }
+  ovSound.addEventListener('click',startWithSound);
+  ovPause.addEventListener('click',function(){ if(ready){player.playVideo(); show(null);} });
+  ovEnd.addEventListener('click',function(){ if(ready){player.seekTo(0,true); player.playVideo(); show(null);} });
+  hit.addEventListener('click',function(){
+    if(!ready) return;
+    if(!unmuted){ startWithSound(); return; }
+    if(player.getPlayerState()===1){ player.pauseVideo(); show(ovPause); } else { player.playVideo(); show(null); }
+  });
+  window.onYouTubeIframeAPIReady=function(){
+    player=new YT.Player('vslPlayer',{
+      host:'https://www.youtube-nocookie.com', videoId:id,
+      playerVars:{autoplay:1,mute:1,controls:0,disablekb:1,fs:0,rel:0,modestbranding:1,iv_load_policy:3,playsinline:1,cc_load_policy:0,showinfo:0,origin:location.origin},
+      events:{
+        onReady:function(e){ ready=true; window.dispatchEvent(new Event('vsl-ready')); e.target.mute(); e.target.playVideo(); },
+        onStateChange:function(e){
+          clearInterval(tick);
+          if(e.data===1) box.classList.add('is-on');
+          if(e.data===1 && unmuted) tick=setInterval(function(){ watched+=.5; var d=player.getDuration(); if(d && watched/d>=window.VSL_REVEAL_AT){ clearInterval(tick); window.dispatchEvent(new Event('vsl-reveal')); } },500);
+          if(e.data===0){ if(!unmuted){ player.seekTo(0,true); player.playVideo(); } else show(ovEnd); }
+        }
+      }
+    });
+  };
+  var t=document.createElement('script'); t.src='https://www.youtube.com/iframe_api'; document.head.appendChild(t);
+})();
 </script>
 </body>
 </html>
