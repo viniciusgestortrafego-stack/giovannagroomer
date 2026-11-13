@@ -42,7 +42,7 @@ Edite só esse bloco para mudar valores do dia a dia:
 
 ## Comportamentos da página
 
-- **VSL (hero, `#vsl`)**: player do YouTube "sem cara de YouTube" (sem controles, título, logo ou links), vídeo definido em `data-yt="Xky3YzTFTYM"`.
+- **VSL (hero, `#vsl`)**: player do YouTube "sem cara de YouTube" (sem controles, título, logo ou links), vídeo definido em `data-yt="tLrBf6HtF94"`.
   Começa mudo em autoplay com o aviso "Seu vídeo já começou / Clique para ativar o som"; o clique volta ao início com som.
   Clique no vídeo pausa/continua. Não substituir esse player por outro sem pedido explícito: o cliente quer exatamente este visual.
 - **Barra de tempo (`#vslBar`)**: só visual, 9px, progresso não linear (`fakeProg`): chega a 55% nos primeiros 20% do vídeo e depois anda devagar até 100%.
